@@ -3,15 +3,19 @@ const cloudinary = require("../config/cloudinary")
 
 
 
+
+
 exports.addProduct = async (req, res) => {
   try {
-    // text fields are now available
-    const { name, price, description, category, stock } = req.body
+    const { name, price, description, category, stock } = req.body;
 
-    // upload image to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "products"
-    })
+    if (!req.file) {
+      return res.status(400).json({ message: "Please upload an image" });
+    }
+
+    const upload = await cloudinary.uploader.upload(req.file.path, {
+      folder: "products",
+    });
 
     const product = await Product.create({
       name,
@@ -19,15 +23,15 @@ exports.addProduct = async (req, res) => {
       description,
       category,
       stock,
-      image: result.secure_url
-    })
+      image: upload.secure_url, // ✅ SINGLE IMAGE
+    });
 
-    res.status(201).json(product)
+    res.status(201).json(product);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: "Product creation failed" })
+    console.error(err);
+    res.status(500).json({ message: "Product creation failed" });
   }
-}
+};
 
 exports.getProducts = async (req, res) => {
   res.json(await Product.find())
