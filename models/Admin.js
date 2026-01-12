@@ -1,13 +1,9 @@
-const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
+const mongoose = require('mongoose');
 
 const adminSchema = new mongoose.Schema({
-  email: String,
-  password: String
-})
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+}, { timestamps: true });
 
-adminSchema.pre('save', async function () {
-  this.password = await bcrypt.hash(this.password, 10)
-})
-
-module.exports = mongoose.model('Admin', adminSchema)
+// ✅ FIX: Check if the model exists before creating it
+module.exports = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
